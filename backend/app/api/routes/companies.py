@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.services.rag.ingest import ingest_resume, get_ingested_count
+from app.services.rag.retriever import retrieve_similar_resumes
 import uuid
 
 router = APIRouter()
@@ -24,7 +25,6 @@ async def ingest_sample_resume(
     current_user: User = Depends(get_current_user)
 ):
     doc_id = str(uuid.uuid4())
-
     ingest_resume(
         resume_text=data.resume_text,
         company=data.company,
@@ -33,9 +33,8 @@ async def ingest_sample_resume(
         source=data.source,
         doc_id=doc_id
     )
-
     return {
-        "message": f"Resume ingested successfully",
+        "message": "Resume ingested successfully",
         "doc_id": doc_id,
         "company": data.company,
         "role": data.role
@@ -49,4 +48,18 @@ async def get_resume_count(
 ):
     count = get_ingested_count(company)
     return {"count": count, "company": company or "all"}
-    
+
+
+@router.get("/search")
+async def search_resumes(
+    company: str,
+    role: str,
+    current_user: User = Depends(get_current_user)
+):
+    results = retrieve_similar_resumes(company=company, role=role)
+    return {
+        "company": company,
+        "role": role,
+        "found": len(results),
+        "resumes": results
+    }
