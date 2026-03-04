@@ -6,6 +6,7 @@ from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.services.rag.ingest import ingest_resume, get_ingested_count
 from app.services.rag.retriever import retrieve_similar_resumes
+from app.services.scraper.unified_scraper import scrape_and_ingest
 import uuid
 
 router = APIRouter()
@@ -63,3 +64,17 @@ async def search_resumes(
         "found": len(results),
         "resumes": results
     }
+
+@router.post("/scrape")
+async def scrape_company_resumes(
+    company: str,
+    role: str,
+    region: str = "usa",
+    current_user: User = Depends(get_current_user)
+):
+    """Scrape and ingest resumes for a company from all sources."""
+    company = company.strip()
+    role = role.strip()
+    region = region.strip().lower()
+    results = scrape_and_ingest(company=company, role=role, region=region)
+    return results
