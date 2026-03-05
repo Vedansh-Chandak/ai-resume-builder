@@ -47,12 +47,10 @@ def get_ingested_count(
 ) -> int:
     collection = get_collection()
 
-    where = {}
     if company:
-        where["company"] = company.lower().strip()
-
-    if where:
-        results = collection.get(where=where)
+        results = collection.get(
+            where={"company": {"$eq": company.lower().strip()}}
+        )
         return len(results["ids"])
 
     return collection.count()
@@ -69,9 +67,11 @@ def has_enough_data(
 
     results = collection.get(
         where={
-            "company": company.lower().strip(),
-            "role": role.lower().strip(),
-            "region": region.lower().strip()
+            "$and": [
+                {"company": {"$eq": company.lower().strip()}},
+                {"role": {"$eq": role.lower().strip()}},
+                {"region": {"$eq": region.lower().strip()}}
+            ]
         }
     )
     count = len(results["ids"])
