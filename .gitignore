@@ -1,7 +1,24 @@
-venv/
-backend/venv/
+# Environment variables
+.env
+.env.*
+
+# Python
 __pycache__/
 *.pyc
-.env
+*.pyo
+venv/
+*.egg-info/
+
+# ChromaDB
+backend/chroma_db/
+
+# Node
 node_modules/
+.next/
+
+# Mac
 .DS_Store
+
+# IDE
+.vscode/
+.idea/
