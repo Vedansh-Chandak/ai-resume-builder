@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.services.rag.retriever import retrieve_similar_resumes
 from app.services.scraper.unified_scraper import scrape_and_ingest
 from app.services.rag.ingest import has_enough_data
-from app.services.ats_checker import calculate_ats_score
+from app.services.ats_checker import calculate_ats_score as industry_ats_check
 
 client = Groq(api_key=settings.GROQ_API_KEY)
 
@@ -14,57 +14,6 @@ def clean_json_response(response: str) -> str:
     response = re.sub(r'```json\s*', '', response)
     response = re.sub(r'```\s*', '', response)
     return response.strip()
-
-
-def calculate_ats_score(resume: dict, job_description: str) -> dict:
-    """Score resume against job description for ATS compatibility."""
-
-    prompt = f"""You are an ATS (Applicant Tracking System) scorer.
-
-Score this resume against the job description below.
-
-Job Description:
-{job_description}
-
-Resume:
-{json.dumps(resume, indent=2)}
-
-Return ONLY a JSON object:
-{{
-    "score": 85,
-    "keyword_match": 80,
-    "format_score": 90,
-    "missing_keywords": ["keyword1", "keyword2"],
-    "suggestions": ["suggestion1", "suggestion2"]
-}}
-
-Score rules:
-- score: overall ATS score 0-100
-- keyword_match: how many JD keywords are in resume 0-100
-- format_score: how well formatted for ATS 0-100
-- missing_keywords: important keywords from JD missing in resume
-- suggestions: specific improvements to make
-"""
-
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.1,
-    )
-
-    raw = response.choices[0].message.content
-    cleaned = clean_json_response(raw)
-
-    try:
-        return json.loads(cleaned)
-    except json.JSONDecodeError:
-        return {
-            "score": 0,
-            "keyword_match": 0,
-            "format_score": 0,
-            "missing_keywords": [],
-            "suggestions": ["Failed to parse ATS score"]
-        }
 
 
 def generate_resume_content(
@@ -148,7 +97,8 @@ Return ONLY a JSON object with no extra text:
         }}
     ],
     "skills": ["skill1", "skill2"],
-    "certifications": []
+    "certifications": [],
+    "achievements": ["achievement1", "achievement2"]
 }}"""
 
     response = client.chat.completions.create(
@@ -221,7 +171,7 @@ def generate_resume(
             continue
 
         # Score it
-        ats_result = calculate_ats_score(resume, job_description)
+        ats_result = industry_ats_check(resume, job_description)
         score = ats_result.get("overall_score", 0)
         print(f"ATS Score: {score}")
 
