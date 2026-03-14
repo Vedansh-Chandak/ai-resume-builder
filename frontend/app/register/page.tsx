@@ -1,15 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import api from '@/lib/api';
 
-export default function LoginPage() {
-  const { login } = useAuth();
+export default function RegisterPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({ email: '', full_name: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -37,14 +34,14 @@ export default function LoginPage() {
     }));
 
     const planets = [
-      { x: 0.85, y: 0.2, r: 45, color: '#1a1a3a', ring: true },
-      { x: 0.08, y: 0.75, r: 28, color: '#0d1a0d', ring: false },
-      { x: 0.93, y: 0.72, r: 15, color: '#1a0d0d', ring: false },
+      { x: 0.12, y: 0.2, r: 40, color: '#1a1a3a', ring: true },
+      { x: 0.9, y: 0.75, r: 28, color: '#0d1a0d', ring: false },
+      { x: 0.08, y: 0.72, r: 15, color: '#1a0d0d', ring: false },
     ];
 
     const rockets = [
-      { x: 0.12, speed: 0.25, offset: 0 },
-      { x: 0.88, speed: 0.18, offset: 300 },
+      { x: 0.85, speed: 0.22, offset: 0 },
+      { x: 0.15, speed: 0.2, offset: 200 },
     ];
 
     let t = 0;
@@ -64,10 +61,9 @@ export default function LoginPage() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       [
-        { x: 0.15, y: 0.25, r: 350, c: 'rgba(40,20,90,0.18)' },
-        { x: 0.82, y: 0.65, r: 280, c: 'rgba(20,40,90,0.14)' },
-        { x: 0.5, y: 0.85, r: 220, c: 'rgba(60,10,70,0.12)' },
-        { x: 0.7, y: 0.15, r: 200, c: 'rgba(10,50,80,0.1)' },
+        { x: 0.8, y: 0.2, r: 350, c: 'rgba(40,20,90,0.18)' },
+        { x: 0.15, y: 0.65, r: 280, c: 'rgba(20,40,90,0.14)' },
+        { x: 0.5, y: 0.5, r: 220, c: 'rgba(60,10,70,0.1)' },
       ].forEach(({ x, y, r, c }) => {
         const g = ctx.createRadialGradient(
           canvas.width * x, canvas.height * y, 0,
@@ -116,11 +112,6 @@ export default function LoginPage() {
           ctx.strokeStyle = 'rgba(120,100,180,0.25)';
           ctx.lineWidth = 8;
           ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(0, 0, p.r * 2.2, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(120,100,180,0.1)';
-          ctx.lineWidth = 4;
-          ctx.stroke();
           ctx.restore();
         }
       });
@@ -135,12 +126,6 @@ export default function LoginPage() {
         ctx.font = `${20 + i * 6}px serif`;
         ctx.fillText('🚀', 0, 0);
         ctx.restore();
-
-        const trail = ctx.createLinearGradient(rx, ry + 10, rx, ry + 60);
-        trail.addColorStop(0, 'rgba(150,100,255,0.08)');
-        trail.addColorStop(1, 'transparent');
-        ctx.fillStyle = trail;
-        ctx.fillRect(rx - 2, ry + 10, 4, 50);
       });
 
       t += 0.016;
@@ -159,10 +144,15 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      await login(email, password);
+      await api.post('/api/auth/register', form);
+      const res = await api.post('/api/auth/login', {
+        email: form.email,
+        password: form.password,
+      });
+      localStorage.setItem('token', res.data.access_token);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed');
+      setError(err.response?.data?.detail || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -182,6 +172,7 @@ export default function LoginPage() {
         .fade-up-3 { animation: fadeUp 0.8s 0.2s ease forwards; opacity: 0; }
         .fade-up-4 { animation: fadeUp 0.8s 0.3s ease forwards; opacity: 0; }
         .fade-up-5 { animation: fadeUp 0.8s 0.4s ease forwards; opacity: 0; }
+        .fade-up-6 { animation: fadeUp 0.8s 0.5s ease forwards; opacity: 0; }
         .input-field {
           width: 100%;
           background: rgba(255,255,255,0.03);
@@ -221,7 +212,7 @@ export default function LoginPage() {
           color: rgba(180,160,255,1);
         }
         .btn-submit:disabled { opacity: 0.3; cursor: not-allowed; }
-        .create-btn {
+        .signin-btn {
           background: transparent;
           border: none;
           font-family: 'Syne', sans-serif;
@@ -233,7 +224,7 @@ export default function LoginPage() {
           padding: 0;
           text-align: left;
         }
-        .create-btn:hover { opacity: 0.7; }
+        .signin-btn:hover { opacity: 0.7; }
       `}</style>
 
       <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }} />
@@ -252,11 +243,11 @@ export default function LoginPage() {
 
           <div className="fade-up" style={{ marginBottom: '40px' }}>
             <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '16px' }}>
-              — Sign in
+              — Create account
             </p>
             <h1 style={{ fontSize: '56px', fontWeight: 800, letterSpacing: '-0.05em', lineHeight: 0.9, color: 'rgba(255,255,255,0.9)' }}>
-              Welcome<br />
-              <span style={{ color: 'rgba(255,255,255,0.2)' }}>back.</span>
+              Join<br />
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>RESUMAI.</span>
             </h1>
           </div>
 
@@ -269,46 +260,60 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div className="fade-up-2">
               <h2 style={{ fontSize: '25px', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 0.9, color: 'rgba(255,255,255,0.85)' }}>
-                Email<span style={{ color: 'rgba(255,255,255,0.2)' }}>.</span>
+                Full Name<span style={{ color: 'rgba(255,255,255,0.2)' }}>.</span>
               </h2>
               <input
                 className="input-field"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                type="text"
+                value={form.full_name}
+                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                placeholder="Vedansh Chandak"
                 required
               />
             </div>
 
             <div className="fade-up-3">
               <h2 style={{ fontSize: '25px', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 0.9, color: 'rgba(255,255,255,0.85)' }}>
-                Password<span style={{ color: 'rgba(255,255,255,0.2)' }}>.</span>
+                Email<span style={{ color: 'rgba(255,255,255,0.2)' }}>.</span>
               </h2>
               <input
                 className="input-field"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="you@example.com"
                 required
               />
             </div>
 
             <div className="fade-up-4">
+              <h2 style={{ fontSize: '25px', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 0.9, color: 'rgba(255,255,255,0.85)' }}>
+                Password<span style={{ color: 'rgba(255,255,255,0.2)' }}>.</span>
+              </h2>
+              <input
+                className="input-field"
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <div className="fade-up-5">
               <button className="btn-submit" type="submit" disabled={loading}>
-                {loading ? 'Launching...' : 'Continue →'}
+                {loading ? 'Launching...' : 'Create account →'}
               </button>
             </div>
           </form>
 
-          <div className="fade-up-5" style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+          <div className="fade-up-6" style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
             <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '12px' }}>
-              — New here?
+              — Already have an account?
             </p>
-            <button className="create-btn" onClick={() => router.push('/register')}>
-              <span style={{ fontSize: '25px', color: 'rgba(255,255,255,0.85)' }}>Create</span><br />
-              <span style={{ fontSize: '30px', color: 'rgba(255,255,255,0.2)' }}>account.</span>
+            <button className="signin-btn" onClick={() => router.push('/login')}>
+              <span style={{ fontSize: '36px', color: 'rgba(255,255,255,0.85)' }}>Sign</span><br />
+              <span style={{ fontSize: '36px', color: 'rgba(255,255,255,0.2)' }}>in.</span>
             </button>
           </div>
         </div>
