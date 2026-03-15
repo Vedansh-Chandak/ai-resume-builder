@@ -38,127 +38,369 @@ export default function SkillGapPage() {
     }
   };
 
-  const getReadinessColor = (level: string) => {
-    if (level === 'Ready') return 'text-green-600 bg-green-50';
-    if (level === 'Almost Ready') return 'text-blue-600 bg-blue-50';
-    if (level === 'Developing') return 'text-yellow-600 bg-yellow-50';
-    return 'text-red-600 bg-red-50';
+  const readinessColor = (level: string) => {
+    if (level === 'Ready') return 'rgba(80,220,120,0.8)';
+    if (level === 'Almost Ready') return 'rgba(100,160,255,0.8)';
+    if (level === 'Developing') return 'rgba(220,180,80,0.8)';
+    return 'rgba(220,80,80,0.8)';
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-6">
-      <div className="max-w-3xl mx-auto">
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="text-blue-600 hover:underline text-sm mb-6 block"
+    <main style={{ background: '#050508', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif", color: '#fff' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+        h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .fade-up { animation: fadeUp 0.7s ease forwards; }
+        .fade-up-2 { animation: fadeUp 0.7s 0.1s ease forwards; opacity: 0; }
+        .fade-up-3 { animation: fadeUp 0.7s 0.2s ease forwards; opacity: 0; }
+
+        .back-btn {
+          background: none;
+          border: none;
+          color: rgba(255,255,255,0.25);
+          font-size: 12px;
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          padding: 0;
+          transition: color 0.2s;
+        }
+        .back-btn:hover { color: rgba(255,255,255,0.7); }
+
+        .input-field {
+          width: 100%;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06);
+          color: #fff;
+          padding: 14px 16px;
+          font-size: 14px;
+          font-family: 'DM Sans', sans-serif;
+          outline: none;
+          transition: all 0.3s;
+          border-radius: 2px;
+        }
+        .input-field:focus {
+          background: rgba(255,255,255,0.04);
+          border-color: rgba(150,120,255,0.35);
+        }
+        .input-field::placeholder { color: rgba(255,255,255,0.1); }
+        select.input-field option { background: #0f0f18; }
+
+        .textarea-field {
+          width: 100%;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06);
+          color: #fff;
+          padding: 14px 16px;
+          font-size: 14px;
+          font-family: 'DM Sans', sans-serif;
+          outline: none;
+          transition: all 0.3s;
+          border-radius: 2px;
+          height: 160px;
+          resize: vertical;
+        }
+        .textarea-field:focus {
+          background: rgba(255,255,255,0.04);
+          border-color: rgba(150,120,255,0.35);
+        }
+        .textarea-field::placeholder { color: rgba(255,255,255,0.1); }
+
+        .submit-btn {
+          width: 100%;
+          background: rgba(255,255,255,0.05);
+          color: rgba(255,255,255,0.7);
+          border: 1px solid rgba(255,255,255,0.08);
+          padding: 16px;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          transition: all 0.3s;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          border-radius: 2px;
+        }
+        .submit-btn:hover:not(:disabled) {
+          background: rgba(150,120,255,0.1);
+          border-color: rgba(150,120,255,0.3);
+          color: rgba(180,160,255,1);
+        }
+        .submit-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .label {
+          font-size: 10px;
+          color: rgba(255,255,255,0.2);
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          display: block;
+          margin-bottom: 8px;
+        }
+
+        .spinner {
+          width: 14px;
+          height: 14px;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-top-color: rgba(255,255,255,0.6);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+          display: inline-block;
+          margin-right: 8px;
+          vertical-align: middle;
+        }
+
+        .result-section {
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          padding-bottom: 40px;
+          margin-bottom: 40px;
+        }
+        .result-section:last-child {
+          border-bottom: none;
+          padding-bottom: 0;
+          margin-bottom: 0;
+        }
+
+        .section-label {
+          font-size: 10px;
+          color: rgba(255,255,255,0.18);
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          margin-bottom: 24px;
+        }
+
+        .skill-pill {
+          display: inline-block;
+          padding: 5px 12px;
+          font-size: 12px;
+          border-radius: 2px;
+          margin: 3px;
+        }
+
+        .learning-card {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.05);
+          padding: 24px;
+          border-radius: 2px;
+          margin-bottom: 12px;
+          transition: all 0.3s;
+        }
+        .learning-card:hover {
+          background: rgba(255,255,255,0.035);
+          border-color: rgba(150,120,255,0.15);
+        }
+
+        .resource-link {
+          display: inline-block;
+          font-size: 11px;
+          color: rgba(150,120,255,0.6);
+          text-decoration: none;
+          border: 1px solid rgba(150,120,255,0.15);
+          padding: 4px 10px;
+          border-radius: 2px;
+          margin: 3px;
+          transition: all 0.2s;
+        }
+        .resource-link:hover {
+          background: rgba(150,120,255,0.08);
+          color: rgba(150,120,255,0.9);
+        }
+
+        .again-btn {
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.3);
+          padding: 12px 24px;
+          font-size: 12px;
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          transition: all 0.2s;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          border-radius: 2px;
+        }
+        .again-btn:hover {
+          border-color: rgba(255,255,255,0.15);
+          color: rgba(255,255,255,0.6);
+        }
+
+        .timeline-row {
+          display: flex;
+          gap: 16px;
+          align-items: flex-start;
+          margin-bottom: 16px;
+        }
+
+        .stat-box {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.05);
+          padding: 20px 24px;
+          border-radius: 2px;
+          text-align: center;
+        }
+      `}</style>
+
+      {/* Navbar */}
+      <nav style={{
+        padding: '20px 56px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
+        position: 'sticky',
+        top: 0,
+        background: 'rgba(5,5,8,0.96)',
+        backdropFilter: 'blur(16px)',
+        zIndex: 100,
+      }}>
+        <div
+          style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '15px', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.7)', cursor: 'pointer' }}
+          onClick={() => router.push('/')}
         >
-          ← Back to Dashboard
+          RESUMAI
+        </div>
+        <button className="back-btn" onClick={() => router.push('/dashboard')}>
+          ← Dashboard
         </button>
+      </nav>
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Skill Gap Analyzer</h1>
-        <p className="text-gray-500 mb-8">Find exactly what skills you need and how to get them</p>
+      {!result ? (
+        /* FORM */
+        <div style={{ maxWidth: '640px', margin: '0 auto', padding: '80px 56px' }}>
 
-        {!result ? (
-          <div className="bg-white p-8 rounded-xl shadow-sm">
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="fade-up" style={{ marginBottom: '56px' }}>
+            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.18)', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '20px' }}>
+              — Step 04
+            </p>
+            <h1 style={{ fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 0.9 }}>
+              Analyze your<br />
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>skill gap.</span>
+            </h1>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', marginTop: '20px', lineHeight: 1.7, fontWeight: 300 }}>
+              Find exactly what skills you're missing and get a personalized learning path with timeline.
+            </p>
+          </div>
+
+          {error && (
+            <div style={{ borderLeft: '1px solid rgba(255,80,80,0.4)', paddingLeft: '16px', color: 'rgba(255,100,100,0.8)', fontSize: '13px', marginBottom: '32px' }}>
+              {error}
+            </div>
+          )}
+
+          <form className="fade-up-2" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div>
+              <label className="label">Select Resume</label>
+              <select
+                className="input-field"
+                value={form.resume_id}
+                onChange={(e) => setForm({ ...form, resume_id: e.target.value })}
+                required
+              >
+                <option value="">Choose a resume...</option>
+                {resumes.map((r) => (
+                  <option key={r.id} value={r.id}>{r.title}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Select Resume
-                </label>
-                <select
-                  value={form.resume_id}
-                  onChange={(e) => setForm({ ...form, resume_id: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  required
-                >
-                  <option value="">Choose a resume...</option>
-                  {resumes.map((r) => (
-                    <option key={r.id} value={r.id}>{r.title}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Target Company
-                </label>
+                <label className="label">Target Company</label>
                 <input
+                  className="input-field"
                   type="text"
                   value={form.company}
                   onChange={(e) => setForm({ ...form, company: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  placeholder="e.g. Google"
+                  placeholder="Google"
                   required
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Target Role
-                </label>
+                <label className="label">Target Role</label>
                 <input
+                  className="input-field"
                   type="text"
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  placeholder="e.g. Software Engineer"
+                  placeholder="Software Engineer"
                   required
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Description
-                </label>
-                <textarea
-                  value={form.job_description}
-                  onChange={(e) => setForm({ ...form, job_description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 h-32"
-                  placeholder="Paste the job description here..."
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
-              >
-                {loading ? '📊 Analyzing...' : 'Analyze Skill Gap'}
-              </button>
-            </form>
-          </div>
-        ) : (
-          <div className="space-y-6">
-
-            {/* Overall Match */}
-            <div className="bg-white p-6 rounded-xl shadow-sm text-center">
-              <p className="text-6xl font-bold text-blue-600">
-                {result.overall_match_percentage}%
-              </p>
-              <p className="text-gray-500 text-sm mt-1">Overall Match</p>
-              <span className={`inline-block mt-3 px-4 py-1 rounded-full text-sm font-medium ${getReadinessColor(result.readiness_level)}`}>
-                {result.readiness_level}
-              </span>
-              <p className="text-gray-600 text-sm mt-3">{result.summary}</p>
             </div>
 
-            {/* Skills Analysis */}
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-4">Skills Analysis</h3>
+            <div>
+              <label className="label">Job Description</label>
+              <textarea
+                className="textarea-field"
+                value={form.job_description}
+                onChange={(e) => setForm({ ...form, job_description: e.target.value })}
+                placeholder="Paste the job description here..."
+                required
+              />
+            </div>
 
-              {/* Matched */}
+            <button className="submit-btn" type="submit" disabled={loading}>
+              {loading ? <><span className="spinner" />Analyzing...</> : 'Analyze Skill Gap →'}
+            </button>
+          </form>
+        </div>
+
+      ) : (
+        /* RESULT */
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '80px 56px' }}>
+
+          {/* Header */}
+          <div className="fade-up" style={{ marginBottom: '64px' }}>
+            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.18)', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '24px' }}>
+              — Skill Gap Analysis
+            </p>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', marginBottom: '20px' }}>
+              <div style={{
+                fontSize: 'clamp(80px, 12vw, 120px)',
+                fontWeight: 800,
+                fontFamily: 'Syne',
+                letterSpacing: '-0.05em',
+                lineHeight: 1,
+                color: readinessColor(result.readiness_level),
+              }}>
+                {result.overall_match_percentage}%
+              </div>
+              <div style={{ paddingBottom: '12px' }}>
+                <div style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'Syne', color: readinessColor(result.readiness_level) }}>
+                  {result.readiness_level}
+                </div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.2)', marginTop: '4px' }}>Overall Match</div>
+              </div>
+            </div>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.7, fontWeight: 300, maxWidth: '600px' }}>
+              {result.summary}
+            </p>
+          </div>
+
+          <div className="fade-up-2" style={{ display: 'flex', flexDirection: 'column' }}>
+
+            {/* Skills Analysis */}
+            <div className="result-section">
+              <p className="section-label">— Skills Analysis</p>
+
               {result.skills_analysis?.matched_skills?.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-green-700 mb-2">✅ Matched Skills</p>
-                  <div className="flex flex-wrap gap-2">
+                <div style={{ marginBottom: '20px' }}>
+                  <p style={{ fontSize: '11px', color: 'rgba(80,220,120,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>
+                    Matched
+                  </p>
+                  <div>
                     {result.skills_analysis.matched_skills.map((s: string, i: number) => (
-                      <span key={i} className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs">
+                      <span key={i} className="skill-pill" style={{ background: 'rgba(80,220,120,0.06)', color: 'rgba(80,220,120,0.7)', border: '1px solid rgba(80,220,120,0.15)' }}>
                         {s}
                       </span>
                     ))}
@@ -166,47 +408,50 @@ export default function SkillGapPage() {
                 </div>
               )}
 
-              {/* Missing Critical */}
               {result.skills_analysis?.missing_critical?.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-red-700 mb-2">🔴 Missing Critical Skills</p>
-                  <div className="space-y-2">
+                <div style={{ marginBottom: '20px' }}>
+                  <p style={{ fontSize: '11px', color: 'rgba(220,80,80,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>
+                    Missing Critical
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {result.skills_analysis.missing_critical.map((s: any, i: number) => (
-                      <div key={i} className="bg-red-50 p-3 rounded-lg">
-                        <p className="text-sm font-medium text-red-800">{s.skill}</p>
-                        <p className="text-xs text-red-600 mt-1">{s.reason}</p>
+                      <div key={i} style={{ borderLeft: '1px solid rgba(220,80,80,0.2)', paddingLeft: '16px' }}>
+                        <p style={{ fontSize: '13px', color: 'rgba(220,80,80,0.7)', fontWeight: 500 }}>{s.skill}</p>
+                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', marginTop: '2px' }}>{s.reason}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Missing Nice to Have */}
               {result.skills_analysis?.missing_nice_to_have?.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-yellow-700 mb-2">🟡 Nice to Have</p>
-                  <div className="space-y-2">
+                <div style={{ marginBottom: '20px' }}>
+                  <p style={{ fontSize: '11px', color: 'rgba(220,180,80,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>
+                    Nice to Have
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {result.skills_analysis.missing_nice_to_have.map((s: any, i: number) => (
-                      <div key={i} className="bg-yellow-50 p-3 rounded-lg">
-                        <p className="text-sm font-medium text-yellow-800">{s.skill}</p>
-                        <p className="text-xs text-yellow-600 mt-1">{s.reason}</p>
+                      <div key={i} style={{ borderLeft: '1px solid rgba(220,180,80,0.2)', paddingLeft: '16px' }}>
+                        <p style={{ fontSize: '13px', color: 'rgba(220,180,80,0.7)', fontWeight: 500 }}>{s.skill}</p>
+                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', marginTop: '2px' }}>{s.reason}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Transferable */}
               {result.skills_analysis?.transferable_skills?.length > 0 && (
                 <div>
-                  <p className="text-sm font-medium text-blue-700 mb-2">🔄 Transferable Skills</p>
-                  <div className="space-y-2">
+                  <p style={{ fontSize: '11px', color: 'rgba(100,160,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>
+                    Transferable
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {result.skills_analysis.transferable_skills.map((s: any, i: number) => (
-                      <div key={i} className="bg-blue-50 p-3 rounded-lg">
-                        <p className="text-sm font-medium text-blue-800">
+                      <div key={i} style={{ borderLeft: '1px solid rgba(100,160,255,0.2)', paddingLeft: '16px' }}>
+                        <p style={{ fontSize: '13px', color: 'rgba(100,160,255,0.7)', fontWeight: 500 }}>
                           {s.current_skill} → {s.transfers_to}
                         </p>
-                        <p className="text-xs text-blue-600 mt-1">{s.reason}</p>
+                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', marginTop: '2px' }}>{s.reason}</p>
                       </div>
                     ))}
                   </div>
@@ -216,96 +461,98 @@ export default function SkillGapPage() {
 
             {/* Experience Gap */}
             {result.experience_analysis && (
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-3">Experience Gap</h3>
-                <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-lg font-bold text-gray-900">{result.experience_analysis.required_years}</p>
-                    <p className="text-xs text-gray-500">Required</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-lg font-bold text-blue-600">{result.experience_analysis.current_years}</p>
-                    <p className="text-xs text-gray-500">Current</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-lg font-bold text-red-600">{result.experience_analysis.gap}</p>
-                    <p className="text-xs text-gray-500">Gap</p>
-                  </div>
+              <div className="result-section">
+                <p className="section-label">— Experience Gap</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                  {[
+                    { label: 'Required', value: result.experience_analysis.required_years, color: 'rgba(255,255,255,0.6)' },
+                    { label: 'Current', value: result.experience_analysis.current_years, color: 'rgba(100,160,255,0.7)' },
+                    { label: 'Gap', value: result.experience_analysis.gap, color: 'rgba(220,80,80,0.7)' },
+                  ].map((item, i) => (
+                    <div key={i} className="stat-box">
+                      <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'Syne', color: item.color, letterSpacing: '-0.02em' }}>
+                        {item.value}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>
+                        {item.label}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-sm text-gray-600">{result.experience_analysis.quality_assessment}</p>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.6 }}>
+                  {result.experience_analysis.quality_assessment}
+                </p>
               </div>
             )}
 
             {/* Learning Path */}
             {result.learning_path?.length > 0 && (
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-4">📚 Learning Path</h3>
-                <div className="space-y-4">
-                  {result.learning_path.map((item: any, i: number) => (
-                    <div key={i} className="border border-gray-100 p-4 rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <span className="text-xs font-bold text-white bg-blue-600 px-2 py-0.5 rounded mr-2">
-                            #{item.priority}
-                          </span>
-                          <span className="font-semibold text-gray-900">{item.skill}</span>
-                        </div>
-                        <span className="text-xs text-gray-500">{item.time_to_learn}</span>
+              <div className="result-section">
+                <p className="section-label">— Learning Path</p>
+                {result.learning_path.map((item: any, i: number) => (
+                  <div key={i} className="learning-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)', fontFamily: 'Syne', fontWeight: 700, minWidth: '20px' }}>
+                          #{item.priority}
+                        </span>
+                        <h3 style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '-0.01em', color: 'rgba(255,255,255,0.8)' }}>
+                          {item.skill}
+                        </h3>
                       </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {item.resources?.map((r: any, j: number) => (
-                          <a
-                            key={j}
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:underline bg-blue-50 px-2 py-1 rounded"
-                          >
-                            {r.name} ({r.type})
-                          </a>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.03em' }}>
+                        {item.time_to_learn}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '12px' }}>
+                      {item.resources?.map((r: any, j: number) => (
+                        <a key={j} href={r.url} target="_blank" rel="noopener noreferrer" className="resource-link">
+                          {r.name}
+                        </a>
+                      ))}
+                    </div>
+                    {item.milestones?.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {item.milestones.map((m: string, j: number) => (
+                          <div key={j} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                            <span style={{ color: 'rgba(150,120,255,0.4)', fontSize: '10px', marginTop: '3px' }}>→</span>
+                            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{m}</span>
+                          </div>
                         ))}
                       </div>
-                      {item.milestones?.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-xs text-gray-500 font-medium mb-1">Milestones:</p>
-                          <ul className="space-y-0.5">
-                            {item.milestones.map((m: string, j: number) => (
-                              <li key={j} className="text-xs text-gray-600 flex gap-1">
-                                <span>→</span>{m}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
 
             {/* Timeline */}
             {result.timeline && (
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-4">⏱ Timeline to Apply</h3>
-                <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <p className="text-sm font-bold text-green-700">{result.timeline.optimistic}</p>
-                    <p className="text-xs text-gray-500">Optimistic</p>
-                  </div>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm font-bold text-blue-700">{result.timeline.realistic}</p>
-                    <p className="text-xs text-gray-500">Realistic</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm font-bold text-gray-700">{result.timeline.conservative}</p>
-                    <p className="text-xs text-gray-500">Conservative</p>
-                  </div>
+              <div className="result-section">
+                <p className="section-label">— Timeline to Apply</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '24px' }}>
+                  {[
+                    { label: 'Optimistic', value: result.timeline.optimistic, color: 'rgba(80,220,120,0.7)' },
+                    { label: 'Realistic', value: result.timeline.realistic, color: 'rgba(100,160,255,0.7)' },
+                    { label: 'Conservative', value: result.timeline.conservative, color: 'rgba(255,255,255,0.4)' },
+                  ].map((item, i) => (
+                    <div key={i} className="stat-box">
+                      <div style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'Syne', color: item.color, letterSpacing: '-0.02em' }}>
+                        {item.value}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '4px' }}>
+                        {item.label}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {result.timeline.breakdown?.map((b: any, i: number) => (
-                    <div key={i} className="flex gap-3 text-sm">
-                      <span className="text-blue-600 font-medium w-24 shrink-0">{b.month}</span>
-                      <span className="text-gray-600">{b.focus}</span>
+                    <div key={i} className="timeline-row">
+                      <span style={{ fontSize: '11px', color: 'rgba(150,120,255,0.5)', fontFamily: 'Syne', fontWeight: 700, minWidth: '100px', letterSpacing: '0.03em' }}>
+                        {b.month}
+                      </span>
+                      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>{b.focus}</span>
                     </div>
                   ))}
                 </div>
@@ -314,44 +561,43 @@ export default function SkillGapPage() {
 
             {/* Immediate Actions */}
             {result.immediate_actions?.length > 0 && (
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-3">⚡ Immediate Actions</h3>
-                <ul className="space-y-2">
+              <div className="result-section">
+                <p className="section-label">— Immediate Actions</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {result.immediate_actions.map((action: string, i: number) => (
-                    <li key={i} className="text-sm text-gray-700 flex gap-2">
-                      <span className="text-blue-500 font-bold">{i + 1}.</span>
-                      {action}
-                    </li>
+                    <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.15)', fontFamily: 'Syne', fontWeight: 700, minWidth: '20px', marginTop: '2px' }}>
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{action}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
             {/* Company Tips */}
             {result.company_specific_tips?.length > 0 && (
-              <div className="bg-blue-50 p-6 rounded-xl">
-                <h3 className="font-bold text-blue-900 mb-3">
-                  🎯 {form.company} Specific Tips
-                </h3>
-                <ul className="space-y-2">
+              <div className="result-section">
+                <p className="section-label">— {form.company} Specific Tips</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {result.company_specific_tips.map((tip: string, i: number) => (
-                    <li key={i} className="text-sm text-blue-800 flex gap-2">
-                      <span>→</span>{tip}
-                    </li>
+                    <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <span style={{ color: 'rgba(150,120,255,0.4)', fontSize: '10px', marginTop: '4px' }}>→</span>
+                      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{tip}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
-
-            <button
-              onClick={() => setResult(null)}
-              className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 text-sm"
-            >
-              Analyze Another
-            </button>
           </div>
-        )}
-      </div>
-    </div>
+
+          <div className="fade-up-3" style={{ marginTop: '48px', display: 'flex', gap: '12px' }}>
+            <button className="again-btn" onClick={() => setResult(null)}>Analyze Another</button>
+            <button className="again-btn" onClick={() => router.push('/dashboard')}>Dashboard →</button>
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
