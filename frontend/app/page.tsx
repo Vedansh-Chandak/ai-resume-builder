@@ -352,7 +352,7 @@ export default function LandingPage() {
         >
           RESUMAI
         </div>
-        <div style={{ fontSize: '13px', color: '#333' }}>Built with ❤️ for hackathon 2026</div>
+       
         <div style={{ display: 'flex', gap: '24px' }}>
           <a className="nav-link" href="#features">Features</a>
           <a className="nav-link" href="#how">How it works</a>

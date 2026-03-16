@@ -47,6 +47,93 @@ export default function CoverLetterPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownloadPDF = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Cover Letter - ${result.company}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Inter', sans-serif;
+            color: #111;
+            background: #fff;
+            padding: 64px;
+            font-size: 14px;
+            line-height: 1.8;
+          }
+          .header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+          }
+          .company {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+          }
+          .role { font-size: 14px; color: #555; }
+          .tone-badge {
+            display: inline-block;
+            border: 1px solid #ddd;
+            padding: 3px 10px;
+            font-size: 11px;
+            color: #888;
+            border-radius: 20px;
+            margin-top: 8px;
+            text-transform: capitalize;
+          }
+          .subject-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #aaa;
+            margin-bottom: 8px;
+          }
+          .subject {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+          }
+          .body {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.9;
+            white-space: pre-wrap;
+          }
+          @media print {
+            body { padding: 48px; }
+            @page { margin: 0.5cm; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="company">${result.company}</div>
+          <div class="role">${result.role}</div>
+          <div class="tone-badge">${result.tone} tone</div>
+        </div>
+        ${result.subject ? `
+          <div class="subject-label">Subject</div>
+          <div class="subject">${result.subject}</div>
+        ` : ''}
+        <div class="body">${result.cover_letter}</div>
+        <script>window.onload = function() { window.print(); }</script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   const tones = [
     { value: 'professional', label: 'Professional', desc: 'Formal & structured' },
     { value: 'conversational', label: 'Conversational', desc: 'Warm & approachable' },
@@ -229,6 +316,25 @@ export default function CoverLetterPage() {
           color: rgba(255,255,255,0.6);
         }
 
+        .pdf-btn {
+          background: rgba(150,120,255,0.08);
+          border: 1px solid rgba(150,120,255,0.25);
+          color: rgba(150,120,255,0.8);
+          padding: 12px 24px;
+          font-size: 12px;
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          transition: all 0.2s;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          border-radius: 2px;
+        }
+        .pdf-btn:hover {
+          background: rgba(150,120,255,0.15);
+          border-color: rgba(150,120,255,0.4);
+          color: rgba(180,160,255,1);
+        }
+
         .result-section {
           border-bottom: 1px solid rgba(255,255,255,0.04);
           padding-bottom: 32px;
@@ -274,7 +380,6 @@ export default function CoverLetterPage() {
       </nav>
 
       {!result ? (
-        /* FORM */
         <div style={{ maxWidth: '640px', margin: '0 auto', padding: '80px 56px' }}>
 
           <div className="fade-up" style={{ marginBottom: '56px' }}>
@@ -348,7 +453,6 @@ export default function CoverLetterPage() {
               />
             </div>
 
-            {/* Tone selector */}
             <div>
               <label className="label">Tone</label>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -386,7 +490,6 @@ export default function CoverLetterPage() {
         </div>
 
       ) : (
-        /* RESULT */
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '80px 56px' }}>
 
           <div className="fade-up" style={{ marginBottom: '56px' }}>
@@ -406,7 +509,6 @@ export default function CoverLetterPage() {
 
           <div className="fade-up-2" style={{ display: 'flex', flexDirection: 'column' }}>
 
-            {/* Subject */}
             {result.subject && (
               <div className="result-section">
                 <p className="section-label">— Subject Line</p>
@@ -416,7 +518,6 @@ export default function CoverLetterPage() {
               </div>
             )}
 
-            {/* Key Points */}
             {result.key_points?.length > 0 && (
               <div className="result-section">
                 <p className="section-label">— Key Points</p>
@@ -431,7 +532,6 @@ export default function CoverLetterPage() {
               </div>
             )}
 
-            {/* Cover Letter */}
             <div className="result-section">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <p className="section-label" style={{ margin: 0 }}>— Cover Letter</p>
@@ -455,9 +555,10 @@ export default function CoverLetterPage() {
             </div>
           </div>
 
-          <div className="fade-up-3" style={{ marginTop: '48px', display: 'flex', gap: '12px' }}>
+          <div className="fade-up-3" style={{ marginTop: '48px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <button className="again-btn" onClick={() => setResult(null)}>Generate Another</button>
             <button className="again-btn" onClick={() => router.push('/dashboard')}>Dashboard →</button>
+            <button className="pdf-btn" onClick={handleDownloadPDF}>Download PDF ↓</button>
           </div>
         </div>
       )}

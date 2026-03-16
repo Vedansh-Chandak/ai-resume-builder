@@ -236,15 +236,35 @@ export default function LoginPage() {
         .create-btn:hover { opacity: 0.7; }
       `}</style>
 
-      <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }} />
+      <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0,pointerEvents: 'none'  }} />
 
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, padding: '24px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
         <div
-          style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '16px', letterSpacing: '0.05em', cursor: 'pointer', color: 'rgba(255,255,255,0.7)' }}
-          onClick={() => router.push('/')}
-        >
-          RESUMAI
-        </div>
+  role="button"
+  tabIndex={0}
+  style={{ fontFamily: 'Syne', fontWeight: 800, fontSize: '15px', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.7)', cursor: 'pointer' }}
+onClick={() => window.location.href = '/'}
+  onKeyDown={(e) => e.key === 'Enter' && router.push('/')}
+>
+  RESUMAI
+</div>
+<button
+  onClick={() => window.location.href = '/'}
+  style={{
+    background: 'none',
+    border: 'none',
+    color: 'rgba(255,255,255,0.3)',
+    fontSize: '12px',
+    cursor: 'pointer',
+    fontFamily: 'DM Sans, sans-serif',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+  }}
+>
+  ← Home
+</button>
+
+
       </nav>
 
       <div style={{ position: 'relative', zIndex: 10, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 24px' }}>
