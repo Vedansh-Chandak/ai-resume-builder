@@ -33,7 +33,7 @@ Unlike generic resume builders, RESUMAI:
 
 ## Features
 
-### 🤖 RAG Resume Generator
+###  RAG Resume Generator
 Scrapes real hired resumes from Reddit (r/cscareerquestions, r/resumereveal), GitHub profile READMEs, Google Docs, and Common Crawl. Uses ChromaDB vector database to retrieve the most similar resumes for your target role and company. Generates an ATS-optimized resume using Groq LLM with a self-improving loop that regenerates until ATS score ≥ 80.
 
 ###  Industry-Grade ATS Checker
@@ -49,7 +49,7 @@ Scrapes real hired resumes from Reddit (r/cscareerquestions, r/resumereveal), Gi
 
 Returns grade (A+ to D), verdict, matched/missing keywords, strengths, improvements with priority, and recruiter tips.
 
-### 📊 Skill Gap Analyzer
+###  Skill Gap Analyzer
 Compares your current profile against the target role and returns:
 - Matched, missing critical, and nice-to-have skills
 - Transferable skills analysis
@@ -294,4 +294,3 @@ Contributions are welcome! Here's how to get started:
 
 MIT License — feel free to use this project for personal or commercial purposes.
 
--
