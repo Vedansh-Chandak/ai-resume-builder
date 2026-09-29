@@ -1,26 +1,42 @@
-from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    # App
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
+    )
+
     APP_NAME: str = "AI Resume Builder"
     APP_ENV: str = "development"
-    DEBUG: bool = True
+    DEBUG: bool = False
 
-    # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = Field(..., description="Async SQLAlchemy database URL")
 
-    # Groq
-    GROQ_API_KEY: str
+    GROQ_API_KEY: str = Field(..., min_length=1)
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
 
-    # JWT
-    JWT_SECRET_KEY: str
+    JWT_SECRET_KEY: str = Field(..., min_length=32)
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
-    # Frontend
     FRONTEND_URL: str = "http://localhost:3000"
+    FRONTEND_URLS: str = ""
 
-    class Config:
-        env_file = ".env"
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def use_async_postgres_driver(cls, value: str) -> str:
+        if value.startswith("postgres://"):
+            return value.replace("postgres://", "postgresql+asyncpg://", 1)
+        if value.startswith("postgresql://"):
+            return value.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return value
+
+    @property
+    def cors_origins(self) -> list[str]:
+        configured = [origin.strip() for origin in self.FRONTEND_URLS.split(",") if origin.strip()]
+        return configured or [self.FRONTEND_URL]
 
 settings = Settings()

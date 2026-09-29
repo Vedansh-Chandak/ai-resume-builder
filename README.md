@@ -97,7 +97,7 @@ Each resume is scored for authenticity before being ingested into ChromaDB.
 | Backend | FastAPI, Python 3.11 |
 | Database | PostgreSQL 18 |
 | Vector DB | ChromaDB |
-| LLM | Groq (llama-3.3-70b-versatile) |
+| LLM | Groq (configurable via `GROQ_MODEL`, default `openai/gpt-oss-120b`) |
 | Embeddings | SentenceTransformers (all-MiniLM-L6-v2) |
 | Auth | JWT (HTTPBearer) |
 | ORM | SQLAlchemy (async) |
@@ -293,4 +293,3 @@ Contributions are welcome! Here's how to get started:
 ## License
 
 MIT License — feel free to use this project for personal or commercial purposes.
-

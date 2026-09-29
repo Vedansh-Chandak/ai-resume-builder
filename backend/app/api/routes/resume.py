@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
+from pdfplumber.utils.exceptions import PdfminerException
+from zipfile import BadZipFile
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.services.cover_letter_generator import generate_cover_letter as generate_cover_letter_service
@@ -27,7 +29,9 @@ async def upload_resume(
     current_user: User = Depends(get_current_user)
 ):
     # Validate file type
-    if not file.filename.endswith((".pdf", ".docx")):
+    filename = file.filename or ""
+    extension = filename.lower()
+    if not extension.endswith((".pdf", ".docx")):
         raise HTTPException(
             status_code=400,
             detail="Only PDF and DOCX files are allowed"
@@ -37,10 +41,22 @@ async def upload_resume(
     file_bytes = await file.read()
 
     # Extract text based on file type
-    if file.filename.endswith(".pdf"):
-        raw_text = extract_text_from_pdf(file_bytes)
-    else:
-        raw_text = extract_text_from_docx(file_bytes)
+    try:
+        if extension.endswith(".pdf"):
+            raw_text = extract_text_from_pdf(file_bytes)
+        else:
+            raw_text = extract_text_from_docx(file_bytes)
+    except (PdfminerException, BadZipFile, ValueError) as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded file could not be read. Please upload a valid PDF or DOCX file.",
+        ) from exc
+
+    if not raw_text.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded resume does not contain readable text.",
+        )
 
     # Parse the extracted text
     parsed_data = parse_resume_with_llm(raw_text)
@@ -48,7 +64,7 @@ async def upload_resume(
     # Save to database
     resume = Resume(
         user_id=current_user.id,
-        title=file.filename,
+        title=filename,
         raw_text=raw_text,
         parsed_data=parsed_data,
     )
