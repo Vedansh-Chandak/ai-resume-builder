@@ -15,7 +15,7 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-raw_url = os.environ.get("DATABASE_URL") or settings.DATABASE_URL
+raw_url = os.environ["DATABASE_URL"]
 print("ENV DATABASE_URL set:", "DATABASE_URL" in os.environ, flush=True)
 print("Host in use:", raw_url.split("@")[-1].split("/")[0], flush=True)  # host only, no password
 
